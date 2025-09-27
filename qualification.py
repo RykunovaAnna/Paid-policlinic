@@ -1,3 +1,5 @@
+from typing import Any
+
 from common_utils import generate_id, remove_duplicated_chars
 
 
@@ -27,3 +29,9 @@ class Qualification:
             raise ValueError('Такой категории не существует')
 
         return title
+
+    def __str__(self):
+        return self.title
+
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, Qualification) and self.title == other.title

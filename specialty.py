@@ -1,4 +1,5 @@
 import re
+from typing import Any
 
 from common_utils import generate_id, remove_duplicated_chars
 
@@ -31,3 +32,9 @@ class Specialty:
             raise ValueError('Название специальности не подходит по формату')
 
         return title
+
+    def __str__(self):
+        return self.title
+
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, Specialty) and self.title == other.title

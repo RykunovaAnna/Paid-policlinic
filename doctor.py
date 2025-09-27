@@ -200,3 +200,24 @@ class Doctor:
             'qualification': qualification,
             'specialties': specialties,
         }
+
+    def __str__(self):
+        patronymic_name = f'Отчество: {self.patronymic}\n' if self.patronymic else '\n'
+
+        return (f'Фамилия: {self.surname}\n'
+                f'Имя: {self.firstname}'
+                f'{patronymic_name}'
+                f'Квалификация: {self.qualification}\n'
+                f'Специальности: {", ".join(map(str, self.specialties))}\n')
+
+    @property
+    def short_str(self):
+        patronymic_name = f' {self.patronymic}' if self.patronymic else ''
+
+        return f'{self.surname} {self.firstname}{patronymic_name}'
+
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, Doctor) and self.surname == other.surname and self.firstname == other.firstname and \
+               self.patronymic == other.patronymic and self.qualification == self.qualification and \
+               all(specialty in other.specialties for specialty in self.specialties) and \
+               all(specialty in self.specialties for specialty in other.specialties)
