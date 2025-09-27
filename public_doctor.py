@@ -1,25 +1,21 @@
 from common_utils import generate_id
+from doctor import Doctor
 
 
-class PublicDoctor:
+class PublicDoctor(Doctor):
     __public_doctor_id: int = generate_id()
 
-    def __init__(self, initials: str, full_fio: str) -> None:
-        self.__full_fio: str = full_fio
-        self.__initials: str = initials
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.__full_fio: str = f'{self.surname} {self.firstname}.{f"{self.patronymic}." if self.patronymic else ""}'
+        self.__initials: str = f'{self.surname} {self.firstname[0]}.' \
+                               f'{f"{self.patronymic[0]}." if self.patronymic else ""}'
 
     @property
     def full_fio(self) -> str:
         return self.__full_fio
 
-    @full_fio.setter
-    def full_fio(self, full_fio: str) -> None:
-        self.__full_fio = full_fio
-
     @property
     def initials(self) -> str:
         return self.__initials
-
-    @initials.setter
-    def initial(self, initials: str) -> None:
-        self.__initials = initials
