@@ -219,6 +219,6 @@ class Doctor:
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, Doctor) and self.surname == other.surname and self.firstname == other.firstname and \
-               self.patronymic == other.patronymic and self.qualification == self.qualification and \
+               self.patronymic == other.patronymic and self.qualification == other.qualification and \
                all(specialty in other.specialties for specialty in self.specialties) and \
                all(specialty in self.specialties for specialty in other.specialties)
