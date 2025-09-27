@@ -124,7 +124,7 @@ class Doctor:
             data = Doctor.build_init_data(args[0], args[1], None, args[2], args[3])
         elif len(args) == 5:
             data = Doctor.build_init_data(args[0], args[1], args[2], args[3], args[4])
-        elif 1 < len(args) < 4 or len(args) > 6:
+        elif 1 < len(args) < 4 or len(args) > 5:
             raise AttributeError('Не соответствует количество аттрибутов')
         elif kwargs.get('doctor') and isinstance(kwargs.get('doctor'), Doctor):
             data = Doctor.parse_init_doctor(kwargs.get('doctor'))
@@ -155,12 +155,13 @@ class Doctor:
 
     @staticmethod
     def parse_init_string(init_string: str) -> dict:
-        data = [parameter.strip() if ',' not in parameter else parameter.strip().split(',')
-                for parameter in init_string.split(';')]
-        if 1 < len(data) < 4 or len(data) > 6:
-            raise AttributeError('Не соответствует количество аттрибутов')
-        if not isinstance(data[-1], list):
-            raise TypeError('Последний параметр строки должен быть специальностями')
+        splited_data = init_string.split(';')
+        data = [parameter.strip() for parameter in splited_data[:-1]]
+        if ',' in splited_data[-1]:
+            data.append(splited_data[-1].strip().split(','))
+        else:
+            data.append([splited_data[-1].strip()])
+
         qualification, specialities = Qualification(data[-2]), [Specialty(speciality) for speciality in data[-1]]
 
         if len(data) == 4:
