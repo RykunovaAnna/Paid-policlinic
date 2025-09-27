@@ -162,14 +162,15 @@ class Doctor:
         else:
             data.append([splited_data[-1].strip()])
 
+        if 1 < len(data) < 4 or len(data) > 6:
+            raise AttributeError('Не соответствует количество аттрибутов')
+
         qualification, specialities = Qualification(data[-2]), [Specialty(speciality) for speciality in data[-1]]
 
         if len(data) == 4:
             return Doctor.build_init_data(data[0], data[1], None, qualification, specialities)
         elif len(data) == 5:
             return Doctor.build_init_data(data[0], data[1], data[2], qualification, specialities)
-        else:
-            raise AttributeError('В строке указано неверное количество аргументов')
 
     @staticmethod
     def parse_init_json(init_json: str) -> dict:
