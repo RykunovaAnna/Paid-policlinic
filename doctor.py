@@ -183,14 +183,15 @@ class Doctor:
     @staticmethod
     def parse_init_string(init_string: str) -> dict:
         splited_data = init_string.split(';')
+
+        if 1 < len(splited_data) < 4 or len(splited_data) > 6:
+            raise AttributeError('Не соответствует количество аттрибутов')
+
         data = [parameter.strip() for parameter in splited_data[:-1]]
         if ',' in splited_data[-1]:
             data.append(splited_data[-1].strip().split(','))
         else:
             data.append([splited_data[-1].strip()])
-
-        if 1 < len(data) < 4 or len(data) > 6:
-            raise AttributeError('Не соответствует количество аттрибутов')
 
         qualification, specialities = Qualification(data[-2]), [Specialty(speciality) for speciality in data[-1]]
 
