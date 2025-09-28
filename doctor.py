@@ -141,7 +141,7 @@ class Doctor:
         if not isinstance(specialties, list):
             raise TypeError('Параметр specialties должен быть списком')
         if not specialties:
-            raise ValueError('Спискок specialties не может быть пустым')
+            raise ValueError('Список specialties не может быть пустым')
         if any(not isinstance(specialty, Specialty) for specialty in specialties):
             raise TypeError('Параметр specialties должен содержать список значений типа Specialty')
 
@@ -200,16 +200,16 @@ class Doctor:
 
     @staticmethod
     def parse_init_string(init_string: str) -> dict:
-        splited_data = init_string.split(';')
+        split_data = init_string.split(';')
 
-        if 1 < len(splited_data) < 4 or len(splited_data) > 6:
+        if 1 < len(split_data) < 4 or len(split_data) > 6:
             raise AttributeError('Не соответствует количество аттрибутов')
 
-        data = [parameter.strip() for parameter in splited_data[:-1]]
-        if ',' in splited_data[-1]:
-            data.append(splited_data[-1].strip().split(','))
+        data: list = [parameter.strip() for parameter in split_data[:-1]]
+        if ',' in split_data[-1]:
+            data.append(split_data[-1].strip().split(','))
         else:
-            data.append([splited_data[-1].strip()])
+            data.append([split_data[-1].strip()])
 
         qualification, specialities = Qualification(data[-2]), [Specialty(speciality) for speciality in data[-1]]
 
