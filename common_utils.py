@@ -1,3 +1,4 @@
+import datetime
 import random
 
 
@@ -9,3 +10,7 @@ def remove_duplicated_chars(string: str, chars: str) -> str:
     for char in chars:
         string = string.replace(f'{char}{char}', char)
     return string
+
+
+def convert_timedelta_to_years(timedelta: datetime.timedelta) -> float:
+    return timedelta.days / 365
