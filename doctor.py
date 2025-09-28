@@ -3,7 +3,7 @@ import json
 import re
 from typing import Any
 
-from common_utils import generate_id, remove_duplicated_chars
+from common_utils import generate_id, remove_duplicated_chars, convert_timedelta_to_years
 from specialty import Specialty
 from qualification import Qualification
 
@@ -112,11 +112,29 @@ class Doctor:
 
     @staticmethod
     def validate_date_birth(date_birth: datetime.date) -> datetime.date:
-        pass
+        if not isinstance(date_birth, datetime.date):
+            raise TypeError('Дата рождения должна быть типа datetime.date')
+
+        age = convert_timedelta_to_years(datetime.date.today() - date_birth)
+        if age < 18 or age > 100:
+            raise ValueError('Человек должен быть старше 18 и младше 100 лет')
+
+        return date_birth
 
     @staticmethod
     def validate_telephone(telephone: str) -> str:
-        pass
+        if not isinstance(telephone, str):
+            raise TypeError('Телефон должен быть строкой')
+
+        telephone = re.sub(r'[+()\s\-]', '', telephone)
+        if telephone == '':
+            raise ValueError('Телефон не может быть пустым')
+        if re.match(r'\D', telephone):
+            raise ValueError('Телефон содержит недопустимые символы')
+        if not re.match(r'^(?:7\d{10}|8\d{10}|\d{10})$', telephone):
+            raise ValueError('Телефон не соответствует стандартному виду')
+
+        return telephone if len(telephone) == 10 else telephone[1:]
 
     @staticmethod
     def validate_specialties(specialties: list[Specialty]) -> list[Specialty]:
