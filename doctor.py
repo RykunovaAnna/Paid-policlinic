@@ -1,3 +1,4 @@
+import datetime
 import json
 import re
 from typing import Any
@@ -18,6 +19,8 @@ class Doctor:
         self.__patronymic: str = Doctor.validate_patronymic(parsed_data.get('patronymic'))
         self.__qualification: Qualification = Doctor.validate_qualification(parsed_data.get('qualification'))
         self.__specialties: list[Specialty] = Doctor.validate_specialties(parsed_data.get('specialties'))
+        self.__date_birth: datetime.date = Doctor.validate_date_birth(parsed_data.get('date_birth'))
+        self.__telephone: str = Doctor.validate_telephone(parsed_data.get('telephone'))
 
     @property
     def instructor_id(self) -> int:
@@ -46,6 +49,22 @@ class Doctor:
     @patronymic.setter
     def patronymic(self, patronymic: str | None) -> None:
         self.__patronymic = Doctor.validate_patronymic(patronymic)
+
+    @property
+    def date_birth(self) -> datetime.date:
+        return self.__date_birth
+
+    @date_birth.setter
+    def date_birth(self, date_birth: datetime.date) -> None:
+        self.__date_birth = Doctor.validate_date_birth(date_birth)
+
+    @property
+    def telephone(self) -> str:
+        return self.__telephone
+
+    @telephone.setter
+    def telephone(self, telephone: str) -> None:
+        self.__telephone = Doctor.validate_telephone(telephone)
 
     @property
     def specialties(self) -> list[Specialty]:
@@ -90,6 +109,14 @@ class Doctor:
             return None
 
         return Doctor.validate_name(patronymic, "patronymic")
+
+    @staticmethod
+    def validate_date_birth(date_birth: datetime.date) -> datetime.date:
+        pass
+
+    @staticmethod
+    def validate_telephone(telephone: str) -> str:
+        pass
 
     @staticmethod
     def validate_specialties(specialties: list[Specialty]) -> list[Specialty]:
