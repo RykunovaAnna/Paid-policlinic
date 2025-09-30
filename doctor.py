@@ -3,7 +3,7 @@ import json
 import re
 from typing import Any
 
-from common_utils import generate_id, remove_duplicated_chars, convert_timedelta_to_years
+from common_utils import generate_id, remove_duplicated_chars, convert_timedelta_to_years, validate_str_date
 from specialty import Specialty
 from qualification import Qualification
 
@@ -55,7 +55,7 @@ class Doctor:
         return self.__date_birth
 
     @date_birth.setter
-    def date_birth(self, date_birth: datetime.date) -> None:
+    def date_birth(self, date_birth: datetime.date | str) -> None:
         self.__date_birth = Doctor.validate_date_birth(date_birth)
 
     @property
@@ -111,9 +111,13 @@ class Doctor:
         return Doctor.validate_name(patronymic, "patronymic")
 
     @staticmethod
-    def validate_date_birth(date_birth: datetime.date) -> datetime.date:
-        if not isinstance(date_birth, datetime.date):
+    def validate_date_birth(date_birth: datetime.date | str) -> datetime.date:
+        if not isinstance(date_birth, datetime.date) or not isinstance(date_birth, str):
             raise TypeError('Дата рождения должна быть типа datetime.date')
+
+        if isinstance(date_birth, str):
+            date_birth_parts = list(map(int, validate_str_date(date_birth).split('.')))
+            date_birth = datetime.date(date_birth_parts[2], date_birth_parts[1], date_birth_parts[0])
 
         age = convert_timedelta_to_years(datetime.date.today() - date_birth)
         if age < 18 or age > 100:
@@ -165,11 +169,11 @@ class Doctor:
                 data = Doctor.parse_init_json(args[0])
             else:
                 data = Doctor.parse_init_string(args[0])
-        elif len(args) == 4:
-            data = Doctor.build_init_data(args[0], args[1], None, args[2], args[3])
-        elif len(args) == 5:
-            data = Doctor.build_init_data(args[0], args[1], args[2], args[3], args[4])
-        elif 1 < len(args) < 4 or len(args) > 5:
+        elif len(args) == 6:
+            data = Doctor.build_init_data(args[0], args[1], None, args[2], args[3], args[4], args[5])
+        elif len(args) == 7:
+            data = Doctor.build_init_data(args[0], args[1], args[2], args[3], args[4], args[5], args[6])
+        elif 1 < len(args) < 6 or len(args) > 7:
             raise AttributeError('Не соответствует количество аттрибутов')
         elif kwargs.get('doctor') and isinstance(kwargs.get('doctor'), Doctor):
             data = Doctor.parse_init_doctor(kwargs.get('doctor'))
@@ -187,13 +191,14 @@ class Doctor:
     @staticmethod
     def parse_init_doctor(doctor: "Doctor") -> dict:
         return Doctor.build_init_data(
-            doctor.surname, doctor.firstname, doctor.patronymic, Qualification(doctor.qualification.title),
-            [Specialty(specialty.title) for specialty in doctor.specialties]
+            doctor.surname, doctor.firstname, doctor.patronymic, doctor.date_birth, doctor.telephone,
+            Qualification(doctor.qualification.title), [Specialty(specialty.title) for specialty in doctor.specialties]
         )
 
     @staticmethod
     def parse_init_dict(init_dict: dict) -> dict:
-        if set(init_dict.keys()) - {'surname', 'firstname', 'patronymic', 'qualification', 'specialties'}:
+        if set(init_dict.keys()) - {'surname', 'firstname', 'patronymic', 'date_birth', 'telephone',
+                                    'qualification', 'specialties'}:
             raise KeyError('Переданные ключи не соответствуют')
 
         return init_dict
@@ -202,7 +207,7 @@ class Doctor:
     def parse_init_string(init_string: str) -> dict:
         split_data = init_string.split(';')
 
-        if 1 < len(split_data) < 4 or len(split_data) > 6:
+        if 1 < len(split_data) < 6 or len(split_data) > 7:
             raise AttributeError('Не соответствует количество аттрибутов')
 
         data: list = [parameter.strip() for parameter in split_data[:-1]]
@@ -213,10 +218,10 @@ class Doctor:
 
         qualification, specialities = Qualification(data[-2]), [Specialty(speciality) for speciality in data[-1]]
 
-        if len(data) == 4:
-            return Doctor.build_init_data(data[0], data[1], None, qualification, specialities)
-        elif len(data) == 5:
-            return Doctor.build_init_data(data[0], data[1], data[2], qualification, specialities)
+        if len(data) == 6:
+            return Doctor.build_init_data(data[0], data[1], None, data[3], data[4], qualification, specialities)
+        elif len(data) == 7:
+            return Doctor.build_init_data(data[0], data[1], data[2], data[3], data[4], qualification, specialities)
 
     @staticmethod
     def parse_init_json(init_json: str) -> dict:
@@ -239,12 +244,14 @@ class Doctor:
         return Doctor.parse_init_dict(prepared_dict)
 
     @staticmethod
-    def build_init_data(surname: str, firstname: str, patronymic: str | None,
-                        qualification: Qualification, specialties: list[Specialty]) -> dict:
+    def build_init_data(surname: str, firstname: str, patronymic: str | None, date_birth: datetime.date | str,
+                        telephone: str, qualification: Qualification, specialties: list[Specialty]) -> dict:
         return {
             'surname': surname,
             'firstname': firstname,
             'patronymic': patronymic,
+            'date_birth': date_birth,
+            'telephone': telephone,
             'qualification': qualification,
             'specialties': specialties,
         }
