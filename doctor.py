@@ -119,7 +119,7 @@ class Doctor:
 
     @staticmethod
     def validate_date_birth(date_birth: datetime.date | str) -> datetime.date:
-        if not isinstance(date_birth, datetime.date) and not isinstance(date_birth, str):
+        if not isinstance(date_birth, datetime.date | str):
             raise TypeError('Дата рождения должна быть типа datetime.date или строкой')
 
         if isinstance(date_birth, str):
@@ -148,22 +148,22 @@ class Doctor:
         return telephone if len(telephone) == 10 else telephone[1:]
 
     @staticmethod
-    def validate_specialties(specialties: list[Specialty]) -> list[Specialty]:
+    def validate_specialties(specialties: list[Specialty | str]) -> list[Specialty]:
         if not isinstance(specialties, list):
             raise TypeError('Параметр specialties должен быть списком')
         if not specialties:
             raise ValueError('Список specialties не может быть пустым')
-        if any(not isinstance(specialty, Specialty) for specialty in specialties):
-            raise TypeError('Параметр specialties должен содержать список значений типа Specialty')
+        if any(not isinstance(specialty, Specialty | str) for specialty in specialties):
+            raise TypeError('Параметр specialties должен содержать список значений типа Specialty или строк')
 
-        return specialties
+        return [Specialty(specialty) if isinstance(specialty, str) else specialty for specialty in specialties]
 
     @staticmethod
-    def validate_qualification(qualification: Qualification) -> Qualification:
-        if not isinstance(qualification, Qualification):
-            raise TypeError('Параметр qualification должен быть типа Qualification')
+    def validate_qualification(qualification: Qualification | str) -> Qualification:
+        if not isinstance(qualification, Qualification | str):
+            raise TypeError('Параметр qualification должен быть типа Qualification или строкой')
 
-        return qualification
+        return Qualification(qualification) if isinstance(qualification, str) else qualification
 
     @staticmethod
     def parse_init_data(*args, **kwargs) -> dict:
@@ -223,36 +223,18 @@ class Doctor:
         else:
             data.append([split_data[-1].strip()])
 
-        qualification, specialities = Qualification(data[-2]), [Specialty(speciality) for speciality in data[-1]]
-
         if len(data) == 6:
-            return Doctor.build_init_data(data[0], data[1], None, data[2], data[3], qualification, specialities)
+            return Doctor.build_init_data(data[0], data[1], None, data[2], data[3], data[-2], data[-1])
         elif len(data) == 7:
-            return Doctor.build_init_data(data[0], data[1], data[2], data[3], data[4], qualification, specialities)
+            return Doctor.build_init_data(data[0], data[1], data[2], data[3], data[4], data[-2], data[-1])
 
     @staticmethod
     def parse_init_json(init_json: str) -> dict:
-        data = json.loads(init_json)
-        prepared_dict = {}
-        for key in data:
-            if key == 'qualification':
-                if not isinstance(data[key], str):
-                    raise ValueError('В JSON в поле qualification должна храниться строка с название квалификации')
-
-                prepared_dict[key] = Qualification(data[key])
-            elif key == 'specialties':
-                if not isinstance(data[key], list):
-                    raise ValueError('В JSON в поле specialties должен храниться список с названием специальностей')
-
-                prepared_dict[key] = [Specialty(specialty) for specialty in data[key]]
-            else:
-                prepared_dict[key] = data[key]
-
-        return Doctor.parse_init_dict(prepared_dict)
+        return json.loads(init_json)
 
     @staticmethod
     def build_init_data(surname: str, firstname: str, patronymic: str | None, date_birth: datetime.date | str,
-                        telephone: str, qualification: Qualification, specialties: list[Specialty]) -> dict:
+                        telephone: str, qualification: Qualification | str, specialties: list[Specialty | str]) -> dict:
         return {
             'surname': surname,
             'firstname': firstname,
