@@ -3,7 +3,14 @@ import json
 import re
 from typing import Any
 
-from common_utils import generate_id, remove_duplicated_chars, convert_timedelta_to_years, validate_str_date
+from common_utils import (
+    convert_timedelta_to_years,
+    format_date,
+    format_telephone,
+    generate_id,
+    remove_duplicated_chars,
+    validate_str_date,
+)
 from specialty import Specialty
 from qualification import Qualification
 
@@ -112,8 +119,8 @@ class Doctor:
 
     @staticmethod
     def validate_date_birth(date_birth: datetime.date | str) -> datetime.date:
-        if not isinstance(date_birth, datetime.date) or not isinstance(date_birth, str):
-            raise TypeError('Дата рождения должна быть типа datetime.date')
+        if not isinstance(date_birth, datetime.date) and not isinstance(date_birth, str):
+            raise TypeError('Дата рождения должна быть типа datetime.date или строкой')
 
         if isinstance(date_birth, str):
             date_birth_parts = list(map(int, validate_str_date(date_birth).split('.')))
@@ -262,6 +269,8 @@ class Doctor:
         return (f'Фамилия: {self.surname}\n'
                 f'Имя: {self.firstname}'
                 f'{patronymic_name}'
+                f'Дата рождения: {format_date(self.date_birth)}'
+                f'Телефон: {format_telephone(self.telephone)}'
                 f'Квалификация: {self.qualification}\n'
                 f'Специальности: {", ".join(map(str, self.specialties))}\n')
 
@@ -273,6 +282,7 @@ class Doctor:
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, Doctor) and self.surname == other.surname and self.firstname == other.firstname and \
-               self.patronymic == other.patronymic and self.qualification == other.qualification and \
+               self.patronymic == other.patronymic and self.date_birth == other.date_birth and \
+               self.telephone == other.telephone and self.qualification == other.qualification and \
                all(specialty in other.specialties for specialty in self.specialties) and \
                all(specialty in self.specialties for specialty in other.specialties)
