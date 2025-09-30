@@ -18,7 +18,7 @@ def convert_timedelta_to_years(timedelta: datetime.timedelta) -> float:
 
 
 def validate_str_date(date: str) -> str:
-    if isinstance(date, str):
+    if not isinstance(date, str):
         raise TypeError('Дата должна быть строкой')
     if re.match(r'[^\.\d]', date):
         raise ValueError('Дата содержит недопустимые символы')

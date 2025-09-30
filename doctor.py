@@ -226,7 +226,7 @@ class Doctor:
         qualification, specialities = Qualification(data[-2]), [Specialty(speciality) for speciality in data[-1]]
 
         if len(data) == 6:
-            return Doctor.build_init_data(data[0], data[1], None, data[3], data[4], qualification, specialities)
+            return Doctor.build_init_data(data[0], data[1], None, data[2], data[3], qualification, specialities)
         elif len(data) == 7:
             return Doctor.build_init_data(data[0], data[1], data[2], data[3], data[4], qualification, specialities)
 
@@ -269,8 +269,8 @@ class Doctor:
         return (f'Фамилия: {self.surname}\n'
                 f'Имя: {self.firstname}'
                 f'{patronymic_name}'
-                f'Дата рождения: {format_date(self.date_birth)}'
-                f'Телефон: {format_telephone(self.telephone)}'
+                f'Дата рождения: {format_date(self.date_birth)}\n'
+                f'Телефон: {format_telephone(self.telephone)}\n'
                 f'Квалификация: {self.qualification}\n'
                 f'Специальности: {", ".join(map(str, self.specialties))}\n')
 
