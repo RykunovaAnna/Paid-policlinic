@@ -39,3 +39,11 @@ def validate_str_date(date: str) -> str:
         raise ValueError('Указано некорректное количество дней в месяце')
 
     return date
+
+
+def format_telephone(telephone: str) -> str:
+    return '+7 ({}) {}-{}-{}'.format(telephone[:3], telephone[3:6], telephone[6:8], telephone[8:])
+
+
+def format_date(date: datetime.date) -> str:
+    return '{}.{}.{}'.format(date.day, date.month, date.year)
