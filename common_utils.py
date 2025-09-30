@@ -22,7 +22,7 @@ def validate_str_date(date: str) -> str:
         raise TypeError('Дата должна быть строкой')
     if re.match(r'[^\.\d]', date):
         raise ValueError('Дата содержит недопустимые символы')
-    if not re.match(r'^\d{2}\.\d{2}\.\d{4}$', date):
+    if not re.match(r'^\d{2}\.\d{2}\.\d+$', date):
         raise ValueError('Необходимо указывать дату в формате ДД.ММ.ГГГГ')
 
     date_parts = list(map(int, date.strip().split('.')))
@@ -46,4 +46,14 @@ def format_telephone(telephone: str) -> str:
 
 
 def format_date(date: datetime.date) -> str:
-    return '{}.{}.{}'.format(date.day, date.month, date.year)
+    return '{}.{}.{}'.format(format_date_part(date.day, 'day'),
+                             format_date_part(date.month, 'month'),
+                             format_date_part(date.year, 'year'))
+
+
+def format_date_part(date_part: int | str, date_part_name: str) -> str:
+    if date_part_name in ('day', 'month'):
+        return f'0{date_part}' if date_part < 10 else date_part
+    elif date_part_name == 'year':
+        cnt_zero = sum(map(int, [date_part < 10, date_part < 100, date_part < 1000]))
+        return f"{'0' * cnt_zero}{date_part}"
