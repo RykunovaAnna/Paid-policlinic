@@ -63,7 +63,7 @@ def tests():
     doctor = Doctor("Д'Арк", "Жанна", "09.08.2000", "9288328514", Qualification("Вторая категория"),
                     [Specialty("Психиатр")])
     print(doctor)
-    doctor = Doctor("петрова-сидорова", "Анна", "09.08.2000", "0123456789", Qualification("Первая категория"),
+    doctor = Doctor("петрова-сидорова", "Анна", "09.08.2000", "0123456789", Qualification("     Первая       категория"),
                     [Specialty("Терапевт")])
     print(doctor)
     doctor = Doctor("  ИвАнов  ", "  Петр  ", "09.08.2000", "3712978827", Qualification("Высшая категория"),
