@@ -25,7 +25,7 @@ class Doctor:
         self.__firstname: str = Doctor.validate_name(parsed_data.get('firstname'), 'firstname')
         self.__patronymic: str | None = Doctor.validate_patronymic(parsed_data.get('patronymic'))
         self.__date_birth: datetime.date = Doctor.validate_date_birth(parsed_data.get('date_birth'))
-        self.__telephone: str = Doctor.validate_telephone(parsed_data.get('telephone'))
+        self.__private_phone: str = Doctor.validate_private_phone(parsed_data.get('private_phone'))
         self.__qualification: Qualification = Doctor.validate_qualification(parsed_data.get('qualification'))
         self.__specialties: list[Specialty] = Doctor.validate_specialties(parsed_data.get('specialties'))
 
@@ -66,12 +66,12 @@ class Doctor:
         self.__date_birth = Doctor.validate_date_birth(date_birth)
 
     @property
-    def telephone(self) -> str:
-        return self.__telephone
+    def private_phone(self) -> str:
+        return self.__private_phone
 
-    @telephone.setter
-    def telephone(self, telephone: str) -> None:
-        self.__telephone = Doctor.validate_telephone(telephone)
+    @private_phone.setter
+    def private_phone(self, private_phone: str) -> None:
+        self.__private_phone = Doctor.validate_private_phone(private_phone)
 
     @property
     def specialties(self) -> list[Specialty]:
@@ -103,10 +103,10 @@ class Doctor:
             raise ValueError(f'Значение {name_type} не соответствует стандартному формату')
 
         separators = re.findall(r"['`\-\s]", name)
-        surname_parts = list(map(lambda string: string.capitalize(), re.split(r"['`\-\s]", name)))
-        name = surname_parts[0]
+        name_parts = list(map(lambda string: string.capitalize(), re.split(r"['`\-\s]", name)))
+        name = name_parts[0]
         for i in range(len(separators)):
-            name = f'{name}{separators[i]}{surname_parts[i + 1]}'
+            name = f'{name}{separators[i]}{name_parts[i + 1]}'
 
         return name
 
@@ -133,19 +133,19 @@ class Doctor:
         return date_birth
 
     @staticmethod
-    def validate_telephone(telephone: str) -> str:
-        if not isinstance(telephone, str):
-            raise TypeError('Телефон должен быть строкой')
+    def validate_private_phone(private_phone: str) -> str:
+        if not isinstance(private_phone, str):
+            raise TypeError('Личный телефон должен быть строкой')
 
-        telephone = re.sub(r'[+()\s\-]', '', telephone)
-        if not telephone:
-            raise ValueError('Телефон не может быть пустым')
-        if re.match(r'\D', telephone):
-            raise ValueError('Телефон содержит недопустимые символы')
-        if not re.match(r'^(?:7\d{10}|8\d{10}|\d{10})$', telephone):
-            raise ValueError('Телефон не соответствует стандартному виду')
+        private_phone = re.sub(r'[+()\s\-]', '', private_phone)
+        if not private_phone:
+            raise ValueError('Личный телефон не может быть пустым')
+        if re.match(r'\D', private_phone):
+            raise ValueError('Личный телефон содержит недопустимые символы')
+        if not re.match(r'^(?:7\d{10}|8\d{10}|\d{10})$', private_phone):
+            raise ValueError('Личный телефон не соответствует стандартному виду')
 
-        return telephone if len(telephone) == 10 else telephone[1:]
+        return private_phone if len(private_phone) == 10 else private_phone[1:]
 
     @staticmethod
     def validate_specialties(specialties: list[Specialty | str]) -> list[Specialty]:
@@ -198,13 +198,13 @@ class Doctor:
     @staticmethod
     def parse_init_doctor(doctor: "Doctor") -> dict:
         return Doctor.build_init_data(
-            doctor.surname, doctor.firstname, doctor.patronymic, doctor.date_birth, doctor.telephone,
+            doctor.surname, doctor.firstname, doctor.patronymic, doctor.date_birth, doctor.private_phone,
             Qualification(doctor.qualification.title), [Specialty(specialty.title) for specialty in doctor.specialties]
         )
 
     @staticmethod
     def parse_init_dict(init_dict: dict) -> dict:
-        if set(init_dict.keys()) - {'surname', 'firstname', 'patronymic', 'date_birth', 'telephone',
+        if set(init_dict.keys()) - {'surname', 'firstname', 'patronymic', 'date_birth', 'private_phone',
                                     'qualification', 'specialties'}:
             raise KeyError('Переданные ключи не соответствуют')
 
@@ -234,13 +234,14 @@ class Doctor:
 
     @staticmethod
     def build_init_data(surname: str, firstname: str, patronymic: str | None, date_birth: datetime.date | str,
-                        telephone: str, qualification: Qualification | str, specialties: list[Specialty | str]) -> dict:
+                        private_phone: str, qualification: Qualification | str,
+                        specialties: list[Specialty | str]) -> dict:
         return {
             'surname': surname,
             'firstname': firstname,
             'patronymic': patronymic,
             'date_birth': date_birth,
-            'telephone': telephone,
+            'private_phone': private_phone,
             'qualification': qualification,
             'specialties': specialties,
         }
@@ -252,7 +253,7 @@ class Doctor:
                 f'Имя: {self.firstname}'
                 f'{patronymic_name}'
                 f'Дата рождения: {format_date(self.date_birth)}\n'
-                f'Телефон: {format_telephone(self.telephone)}\n'
+                f'Телефон: {format_telephone(self.private_phone)}\n'
                 f'Квалификация: {self.qualification}\n'
                 f'Специальности: {", ".join(map(str, self.specialties))}\n')
 
@@ -265,6 +266,6 @@ class Doctor:
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, Doctor) and self.surname == other.surname and self.firstname == other.firstname and \
                self.patronymic == other.patronymic and self.date_birth == other.date_birth and \
-               self.telephone == other.telephone and self.qualification == other.qualification and \
+               self.private_phone == other.private_phone and self.qualification == other.qualification and \
                all(specialty in other.specialties for specialty in self.specialties) and \
                all(specialty in self.specialties for specialty in other.specialties)

@@ -13,7 +13,7 @@ def tests():
         firstname="Петр",
         patronymic="Сергеевич",
         date_birth="09.08.2004",
-        telephone="+7 (918) 328-87-72",
+        private_phone="+7 (918) 328-87-72",
         qualification=Qualification("Высшая категория"),
         specialties=[Specialty("Терапевт"), "Кардиолог"]
     )
@@ -22,7 +22,7 @@ def tests():
         surname="Петрова",
         firstname="Мария",
         date_birth="15.02.1999",
-        telephone="8 918 328-87-72",
+        private_phone="8 918 328-87-72",
         qualification="Первая категория",
         specialties=["Педиатр"]
     )
@@ -42,14 +42,15 @@ def tests():
         'firstname': 'Михаил',
         'patronymic': 'Андреевич',
         'date_birth': datetime.date(1960, 12, 12),
-        'telephone': '9999999999',
+        'private_phone': '9999999999',
         'qualification': Qualification("Высшая категория"),
         'specialties': [Specialty("Уролог"), Specialty("Андролог")]
     }
     doctor = Doctor(data)
 
-    json_data = '{"surname": "Николаева", "firstname": "Ольга", "date_birth": "09.08.2000", "telephone": "9999999999", ' \
-                '"patronymic": "Игоревна", "qualification": "Первая категория", "specialties": ["Гинеколог", "Уролог"]}'
+    json_data = ('{"surname": "Николаева", "firstname": "Ольга", "date_birth": "09.08.2000", '
+                 '"private_phone": "9999999999", "patronymic": "Игоревна", "qualification": "Первая категория", '
+                 '"specialties": ["Гинеколог", "Уролог"]}')
     doctor = Doctor(json_data)
 
     string_data = "Кузнецов;Андрей;09.08.2000;9999999999;Вторая категория;Травматолог"
