@@ -23,7 +23,7 @@ class Qualification:
             raise TypeError('Название категории должно быть строкой')
 
         title = remove_duplicated_chars(title.strip(), ' ').capitalize()
-        if title == '':
+        if not title:
             raise ValueError('Категория не может быть пустой')
         if title not in ('Вторая категория', 'Первая категория', 'Высшая категория'):
             raise ValueError('Такой категории не существует')

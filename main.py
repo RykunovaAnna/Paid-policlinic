@@ -15,7 +15,7 @@ def tests():
         date_birth="09.08.2004",
         telephone="+7 (918) 328-87-72",
         qualification=Qualification("Высшая категория"),
-        specialties=[Specialty("Терапевт"), Specialty("Кардиолог")]
+        specialties=[Specialty("Терапевт"), "Кардиолог"]
     )
 
     doctor = Doctor(
@@ -23,8 +23,8 @@ def tests():
         firstname="Мария",
         date_birth="15.02.1999",
         telephone="8 918 328-87-72",
-        qualification=Qualification("Первая категория"),
-        specialties=[Specialty("Педиатр")]
+        qualification="Первая категория",
+        specialties=["Педиатр"]
     )
 
     doctor = Doctor("Сидоров", "Алексей", "02.02.2000", "9180398338",

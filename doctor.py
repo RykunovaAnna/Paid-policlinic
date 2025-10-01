@@ -23,11 +23,11 @@ class Doctor:
 
         self.__surname: str = Doctor.validate_name(parsed_data.get('surname'), 'surname')
         self.__firstname: str = Doctor.validate_name(parsed_data.get('firstname'), 'firstname')
-        self.__patronymic: str = Doctor.validate_patronymic(parsed_data.get('patronymic'))
-        self.__qualification: Qualification = Doctor.validate_qualification(parsed_data.get('qualification'))
-        self.__specialties: list[Specialty] = Doctor.validate_specialties(parsed_data.get('specialties'))
+        self.__patronymic: str | None = Doctor.validate_patronymic(parsed_data.get('patronymic'))
         self.__date_birth: datetime.date = Doctor.validate_date_birth(parsed_data.get('date_birth'))
         self.__telephone: str = Doctor.validate_telephone(parsed_data.get('telephone'))
+        self.__qualification: Qualification = Doctor.validate_qualification(parsed_data.get('qualification'))
+        self.__specialties: list[Specialty] = Doctor.validate_specialties(parsed_data.get('specialties'))
 
     @property
     def instructor_id(self) -> int:
@@ -50,7 +50,7 @@ class Doctor:
         self.__firstname = Doctor.validate_name(firstname, 'firstname')
 
     @property
-    def patronymic(self) -> str:
+    def patronymic(self) -> str | None:
         return self.__patronymic
 
     @patronymic.setter
@@ -78,7 +78,7 @@ class Doctor:
         return self.__specialties
 
     @specialties.setter
-    def specialties(self, specialties: list[Specialty]) -> None:
+    def specialties(self, specialties: list[Specialty | str]) -> None:
         self.__specialties = Doctor.validate_specialties(specialties)
 
     @property
@@ -86,7 +86,7 @@ class Doctor:
         return self.__qualification
 
     @qualification.setter
-    def qualification(self, qualification: Qualification) -> None:
+    def qualification(self, qualification: Qualification | str) -> None:
         self.__qualification = Doctor.validate_qualification(qualification)
 
     @staticmethod
@@ -95,7 +95,7 @@ class Doctor:
             raise TypeError(f'Значение {name_type} должно быть строкой')
 
         name = remove_duplicated_chars(name.strip(" '`-"), " '`-")
-        if name == '':
+        if not name:
             raise ValueError(f'Значение {name_type} не может быть пустым')
         if re.match(r"[^а-яё'`\-\s]+", name, flags=re.IGNORECASE):
             raise ValueError(f'Значение {name_type} содержит недопустимые символы')
@@ -115,7 +115,7 @@ class Doctor:
         if patronymic is None:
             return None
 
-        return Doctor.validate_name(patronymic, "patronymic")
+        return Doctor.validate_name(patronymic, 'patronymic')
 
     @staticmethod
     def validate_date_birth(date_birth: datetime.date | str) -> datetime.date:
@@ -138,7 +138,7 @@ class Doctor:
             raise TypeError('Телефон должен быть строкой')
 
         telephone = re.sub(r'[+()\s\-]', '', telephone)
-        if telephone == '':
+        if not telephone:
             raise ValueError('Телефон не может быть пустым')
         if re.match(r'\D', telephone):
             raise ValueError('Телефон содержит недопустимые символы')
@@ -224,9 +224,9 @@ class Doctor:
             data.append([split_data[-1].strip()])
 
         if len(data) == 6:
-            return Doctor.build_init_data(data[0], data[1], None, data[2], data[3], data[-2], data[-1])
+            return Doctor.build_init_data(data[0], data[1], None, data[2], data[3], data[4], data[5])
         elif len(data) == 7:
-            return Doctor.build_init_data(data[0], data[1], data[2], data[3], data[4], data[-2], data[-1])
+            return Doctor.build_init_data(data[0], data[1], data[2], data[3], data[4], data[5], data[7])
 
     @staticmethod
     def parse_init_json(init_json: str) -> dict:
