@@ -226,7 +226,7 @@ class Doctor:
         if len(data) == 6:
             return Doctor.build_init_data(data[0], data[1], None, data[2], data[3], data[4], data[5])
         elif len(data) == 7:
-            return Doctor.build_init_data(data[0], data[1], data[2], data[3], data[4], data[5], data[7])
+            return Doctor.build_init_data(data[0], data[1], data[2], data[3], data[4], data[5], data[6])
 
     @staticmethod
     def parse_init_json(init_json: str) -> dict:
