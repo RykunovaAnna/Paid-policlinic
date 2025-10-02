@@ -32,9 +32,9 @@ def validate_str_date(date: str) -> str:
     if date_parts[1] > 12:
         raise ValueError('Месяц должен быть числом от 1 до 12')
     if date_parts[2] % 4 == 0 and date_parts[1] == 2 and date_parts[0] > 29:
-        raise ValueError('В феврале высокосного года существует всего 29 дней')
+        raise ValueError('В феврале високосного года существует всего 29 дней')
     if date_parts[2] % 4 != 0 and date_parts[1] == 2 and date_parts[0] > 28:
-        raise ValueError('В феврале не высокосного года существует всего 28 дней')
+        raise ValueError('В феврале не високосного года существует всего 28 дней')
     if date_parts[1] in (1, 3, 5, 7, 8, 10, 12) and date_parts[0] > 31 or\
             date_parts[1] in (2, 4, 6, 9, 11) and date_parts[0] > 30:
         raise ValueError('Указано некорректное количество дней в месяце')
