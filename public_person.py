@@ -51,15 +51,35 @@ class PublicPerson:
         initials_parts = initials.split()
         if len(initials_parts) != 2:
             raise ValueError('Фамилия и инициалы должны быть разделены одним пробелом')
-        if re.match(r'[^а-яё\'`\-\s\.]', initials, flags=re.IGNORECASE):
+        if re.match(r'.*[^а-яё\'`\-\s\.].*', initials, flags=re.IGNORECASE):
             raise ValueError('Фамилия и инициалы содержат недопустимые символы')
-        if not re.match(r'^[а-яё]+(?:[\'`\-\s][а-яё]+)*$', initials_parts[0], flags=re.IGNORECASE):
-            raise ValueError('Фамилия не соответствует стандартному виду')
         if not re.match(r'^(?:[а-яё]\.(?:[\-\s][а-яё]\.)*|[а-яё](?:[\'`][а-яё]\.))+$',
                         initials_parts[1], flags=re.IGNORECASE):
             raise ValueError('Инициалы не соответствуют стандартному виду')
+        initials_parts[0] = PublicPerson.validate_name(initials_parts[0], 'фамилии')
 
-        return f'{initials_parts[0].capitalize()} {initials_parts[1].upper()}'
+        return f'{initials_parts[0]} {initials_parts[1].upper()}'
+
+    @staticmethod
+    def validate_name(name: str, name_type: str) -> str:
+        if not isinstance(name, str):
+            raise TypeError(f'Значение {name_type} должно быть строкой')
+
+        name = remove_duplicated_chars(name.strip(" '`-"), " '`-")
+        if not name:
+            raise ValueError(f'Значение {name_type} не может быть пустым')
+        if re.match(r'.*[^а-яё\'`\-\s].*', name, flags=re.IGNORECASE):
+            raise ValueError(f'Значение {name_type} содержит недопустимые символы')
+        if not re.match(r'^[а-яё]+(?:[\'`\-\s][а-яё]+)*$', name, flags=re.IGNORECASE):
+            raise ValueError(f'Значение {name_type} не соответствует стандартному формату')
+
+        separators = re.findall(r'[\'`\-\s]', name)
+        name_parts = list(map(lambda string: string.capitalize(), re.split(r'[\'`\-\s]', name)))
+        name = name_parts[0]
+        for i in range(len(separators)):
+            name = f'{name}{separators[i]}{name_parts[i + 1]}'
+
+        return name
 
     @staticmethod
     def validate_email(email: str) -> str:
@@ -79,12 +99,12 @@ class PublicPerson:
             raise ValueError('Локальная часть и доменное имя email не могут содержать подряд идущие ".", "-"')
         if '-.' in email_parts[1]:
             raise ValueError('Доменная метка не может заканчиваться на "-"')
-        if re.match(r'[^a-z\d!#$%&\'*+/=?^_`{|}~\-.]', email_parts[0], flags=re.IGNORECASE):
+        if re.match(r'.*[^a-z\d!#$%&\'*+/=?^_`{|}~\-.].*', email_parts[0], flags=re.IGNORECASE):
             raise ValueError('Локальная часть email содержит недопустимые символы')
         if not re.match(r'^[a-z\d!#$%&\'*+/=?^_`{|}~\-]+(?:\.[a-z\d!#$%&\'*+/=?^_`{|}~\-]+)*$',
                         email_parts[0], flags=re.IGNORECASE):
             raise ValueError('Локальная часть email не соответствует стандартному виду')
-        if re.match(r'[^a-z\d\-.]', email_parts[1], flags=re.IGNORECASE):
+        if re.match(r'.*[^a-z\d\-.].*', email_parts[1], flags=re.IGNORECASE):
             raise ValueError('Доменное имя email содержит недопустимые символы')
         if not re.match(r'^[a-z\d]+(?:\-[a-z\d]+)*(?:\.[a-z\d]+(?:\-[a-z\d]+)*)*\.[a-z]{2,}$',
                         email_parts[1], flags=re.IGNORECASE):
@@ -104,7 +124,7 @@ class PublicPerson:
         phone = re.sub(r'[+()\s\-]', '', phone)
         if not phone:
             raise ValueError(f'{phone_type.capitalize()} телефон не может быть пустым')
-        if re.match(r'\D', phone):
+        if re.match(r'.*\D.*', phone):
             raise ValueError(f'{phone_type.capitalize()} телефон содержит недопустимые символы')
         if not re.match(r'^(?:7\d{10}|8\d{10}|\d{10})$', phone):
             raise ValueError(f'{phone_type.capitalize()} телефон не соответствует стандартному виду')

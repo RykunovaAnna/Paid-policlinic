@@ -93,27 +93,6 @@ class Doctor(PublicPerson):
         self.__qualification = Doctor.validate_qualification(qualification)
 
     @staticmethod
-    def validate_name(name: str, name_type: str) -> str:
-        if not isinstance(name, str):
-            raise TypeError(f'Значение {name_type} должно быть строкой')
-
-        name = remove_duplicated_chars(name.strip(" '`-"), " '`-")
-        if not name:
-            raise ValueError(f'Значение {name_type} не может быть пустым')
-        if re.match(r'[^а-яё\'`\-\s]+', name, flags=re.IGNORECASE):
-            raise ValueError(f'Значение {name_type} содержит недопустимые символы')
-        if not re.match(r'^[а-яё]+(?:[\'`\-\s][а-яё]+)*$', name, flags=re.IGNORECASE):
-            raise ValueError(f'Значение {name_type} не соответствует стандартному формату')
-
-        separators = re.findall(r'[\'`\-\s]', name)
-        name_parts = list(map(lambda string: string.capitalize(), re.split(r'[\'`\-\s]', name)))
-        name = name_parts[0]
-        for i in range(len(separators)):
-            name = f'{name}{separators[i]}{name_parts[i + 1]}'
-
-        return name
-
-    @staticmethod
     def validate_patronymic(patronymic: str | None) -> str | None:
         if patronymic is None:
             return None
@@ -252,7 +231,7 @@ class Doctor(PublicPerson):
                 f'{patronymic_name}'
                 f'Инициалы: {self.initials}\n'
                 f'Дата рождения: {format_date(self.date_birth)}\n'
-                f'Публичный телефон: {self.public_phone}\n'
+                f'Публичный телефон: {format_telephone(self.public_phone)}\n'
                 f'Личный телефон: {format_telephone(self.private_phone)}\n'
                 f'Email: {self.email}\n'
                 f'Квалификация: {self.qualification}\n'

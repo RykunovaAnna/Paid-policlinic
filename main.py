@@ -35,7 +35,7 @@ def tests():
     doctor = Doctor("Сидоров", "Алексей", "Сидоров А.", "02.02.2000", "9928398338", "9180398338", "asd.d@asd.sad",
                     Qualification("Вторая категория"), [Specialty("Хирург")])
 
-    doctor = Doctor("Козлов", "Дмитрий", "Владимирович", "Козлов Д.В,", datetime.date(2000, 12, 12), "89999999999",
+    doctor = Doctor("Козлов", "Дмитрий", "Владимирович", "Козлов Д.В.", datetime.date(2000, 12, 12), "89999999999",
                     "89999999999", "kozlov@gmail.com", Qualification("Высшая категория"), [Specialty("Невролог")])
 
     original_doctor = Doctor("Смирнова", "Анна", "Викторовна", "Смирнова А.В.", "08.08.1998", "+79999999999",
@@ -72,37 +72,37 @@ def tests():
 
 
     # 2 - тест валидации
-    doctor = Doctor("Д'Арк", "Жанна", "09.08.2000", "9288328514", Qualification("Вторая категория"),
-                    [Specialty("Психиатр")])
+    doctor = Doctor("Д'Арк", "Жанна", "Д'Арк Ж.", "09.08.2000", "9288328514", "89288328516", "darkjanna@gmail.com",
+                    Qualification("Вторая категория"), [Specialty("Психиатр")])
     print(doctor)
-    doctor = Doctor("петрова-сидорова", "Анна", "09.08.2000", "0123456789", Qualification("     Первая       категория"),
-                    [Specialty("Терапевт")])
+    doctor = Doctor("петрова-сидорова", "Анна", "петрова-сидорова а.", "09.08.2000", "0123456789", "0123456789",
+                    "petro@fjf.ir", Qualification("     Первая       категория"), [Specialty("   Терапевт      ")])
     print(doctor)
-    doctor = Doctor("  ИвАнов  ", "  Петр  ", "09.08.2000", "3712978827", Qualification("Высшая категория"),
-                    [Specialty("Кардиолог"), Specialty("Терапевт")])
+    doctor = Doctor("  ИвАнов  ", "  Петр  ", " ИваАнОв п...", "09.08.2000", "3712978827", "(371) 297-88-27",
+                    "qw.12@qwe.qwe", Qualification("Высшая категория"), ["Кардиолог", Specialty("Терапевт")])
     print(doctor)
 
     # 3 - тест исключений
     try:
-        doctor = Doctor("Ivanov", "Петр", "09.08.2000", "9999999999", Qualification("Высшая категория"),
-                        [Specialty("Терапевт")])
-    except ValueError as e:
-        print(f"Ожидаемая ошибка: {e}")
-
-    try:
-        doctor = Doctor("", "Петр", "09.08.2000", "9999999999", Qualification("Высшая категория"),
-                        [Specialty("Терапевт")])
-    except ValueError as e:
-        print(f"Ожидаемая ошибка: {e}")
-
-    try:
-        doctor = Doctor("Иванов123", "Петр", "09.08.2000", "9999999999",
+        doctor = Doctor("Ivanov", "Петр", "Ivanov П,", "09.08.2000", "9999999999", "9999999999", "asd@asd.asd",
                         Qualification("Высшая категория"), [Specialty("Терапевт")])
     except ValueError as e:
         print(f"Ожидаемая ошибка: {e}")
 
     try:
-        doctor = Doctor(123, "Петр", "09.08.2000", "9999999999",
+        doctor = Doctor("", "Петр", "п.", "09.08.2000", "9999999999", "9999999999", "qwe@qwe.qwe",
+                        Qualification("Высшая категория"), [Specialty("Терапевт")])
+    except ValueError as e:
+        print(f"Ожидаемая ошибка: {e}")
+
+    try:
+        doctor = Doctor("Иванов123", "Петр", "Иванов П.", "09.08.2000", "9999999999", "9999999999", "q@w.qe",
+                        Qualification("Высшая категория"), [Specialty("Терапевт")])
+    except ValueError as e:
+        print(f"Ожидаемая ошибка: {e}")
+
+    try:
+        doctor = Doctor(123, "Петр", 123, "09.08.2000", "9999999999", 123, 123,
                         Qualification("Высшая категория"), [Specialty("Терапевт")])
     except TypeError as e:
         print(f"Ожидаемая ошибка: {e}")
@@ -114,38 +114,45 @@ def tests():
         print(f"Ожидаемая ошибка: {e}")
 
     try:
-        doctor = Doctor("Иванов", "Петр", "09.08.2000", "9999999999",
+        doctor = Doctor("Иванов", "Петр", "Иванов", "09.08.2000", "9999999999", "9999999999", "qwe@qwe.qwe",
                         Qualification("Высшая категория"), ["Терапевт"])
-    except TypeError as e:
+    except ValueError as e:
         print(f"Ожидаемая ошибка: {e}")
 
     try:
-        doctor = Doctor("Иванов", "Петр", "09.08.2000", "9999999999",
+        doctor = Doctor("Иванов", "Петр", "Иванов П.", "09.08.2000", "9999999999", "9999999999", "qwe@qwe.qwe",
                         Qualification("Высшая категория"), [])
     except Exception as e:
         print(f"Ожидаемая ошибка: {e}")
 
     try:
-        doctor = Doctor("Иванов;Петр")  # Недостаточно параметров
+        doctor = Doctor("Иванов", "Петр", "Иванов П.", "09.13.2000", "9999999999", "9999999999", "qwe@qwe.qwe",
+                        Qualification("Высшая категория"), [])
+    except Exception as e:
+        print(f"Ожидаемая ошибка: {e}")
+
+    try:
+        doctor = Doctor("Иванов;Петр")
     except AttributeError as e:
         print(f"Ожидаемая ошибка: {e}")
 
 
     # 4 - прочие тесты
-    doctor = Doctor("Иванов", "Петр", "Сергеевич", "09.08.2000", "9999999999",
-                    Qualification("Высшая категория"), [Specialty("Терапевт")])
+    print()
+    doctor = Doctor("Иванов", "Петр", "Сергеевич", "иванов п.с.", "09.08.2000", "9999999999", "9999999999",
+                    "ivanov@proton.kz", Qualification("Высшая категория"), [Specialty("Терапевт")])
     print(doctor.short_str)
 
-    doctor1 = Doctor("Иванов", "Петр", "09.08.2000", "9999999999",
-                     Qualification("Высшая категория"), [Specialty("Терапевт")])
-    doctor2 = Doctor("Иванов", "Петр", "09.08.2000", "9999999999",
-                     Qualification("Высшая категория"), [Specialty("Терапевт")])
+    doctor1 = Doctor("Иванов", "Петр", "иванов п.", "09.08.2000", "9999999999", "9999999999",
+                     "ivanov@proton.kz", Qualification("Высшая категория"), [Specialty("Терапевт")])
+    doctor2 = Doctor("Иванов", "Петр", "иванов п.", "09.08.2000", "9999999999", "9999999999",
+                     "ivanov@proton.kz", "Высшая категория", ["Терапевт"])
     print(doctor1 == doctor2)
 
-    doctor1 = Doctor("Иванов", "Петр", "09.08.2000", "9999999999",
-                     Qualification("Высшая категория"), [Specialty("Терапевт")])
-    doctor2 = Doctor("Петров", "Петр", "09.08.2000", "9999999999",
-                     Qualification("Высшая категория"), [Specialty("Терапевт")])
+    doctor1 = Doctor("Иванов", "Петр", "иванов п.", "09.08.2000", "9999999999", "9999999999",
+                     "ivanov@proton.kz", "Высшая категория", ["Терапевт"])
+    doctor2 = Doctor("Петров", "Петр", "Петров п.", "09.08.2000", "9999999999", "9999999999",
+                     "ivanov@proton.kz", "Высшая категория", ["Терапевт"])
     print(doctor1 == doctor2)
 
 

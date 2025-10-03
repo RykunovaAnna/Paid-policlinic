@@ -26,7 +26,7 @@ class Specialty:
         title = remove_duplicated_chars(title.strip('- '), '- ()').capitalize()
         if not title:
             raise ValueError('Название специальности не может быть пустым')
-        if re.match(r'[^А-ЯЁа-яё\s\-()]', title):
+        if re.match(r'.*[^А-ЯЁа-яё\s\-()].*', title):
             raise ValueError('Название специальности содержит недопустимые символы')
         if not re.match(r'^[А-ЯЁ][а-яё]+(?:[\s\-]?[а-яё]+)+(?:\s\([а-яё]+(?:[\s\-]?[а-яё]+)*\))?$', title):
             raise ValueError('Название специальности не подходит по формату')

@@ -10,7 +10,8 @@ def generate_id() -> int:
 def remove_duplicated_chars(string: str, chars: str) -> str:
     for char in chars:
         if char in string:
-            string = re.sub(re.compile(f'\\\\{char}+'), char, string)
+            shielding = '\\' if char in '?.(){}+*\\' else ''
+            string = re.sub(re.compile(f'{shielding}{char}+'), char, string)
     return string
 
 
@@ -21,9 +22,9 @@ def convert_timedelta_to_years(timedelta: datetime.timedelta) -> float:
 def validate_str_date(date: str) -> str:
     if not isinstance(date, str):
         raise TypeError('Дата должна быть строкой')
-    if re.match(r'[^\.\d]', date):
+    if re.match(r'.*[^\.\d].*', date):
         raise ValueError('Дата содержит недопустимые символы')
-    if not re.match(r'^\d{2}\.\d{2}\.\d+$', date):
+    if not re.match(r'^\d{2}\.\d{2}\.\d{1,4}$', date):
         raise ValueError('Необходимо указывать дату в формате ДД.ММ.ГГГГ')
 
     date_parts = list(map(int, date.strip().split('.')))
