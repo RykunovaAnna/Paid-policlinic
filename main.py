@@ -1,6 +1,5 @@
 import datetime
 
-from common_utils import format_date
 from doctor import Doctor
 from qualification import Qualification
 from specialty import Specialty
@@ -123,19 +122,19 @@ def tests():
     # 4 - прочие тесты
     doctor = Doctor("Иванов", "Петр", "Сергеевич", "09.08.2000", "9999999999",
                     Qualification("Высшая категория"), [Specialty("Терапевт")])
-    print(doctor.short_str)  # "Иванов Петр Сергеевич"
+    print(doctor.short_str)
 
     doctor1 = Doctor("Иванов", "Петр", "09.08.2000", "9999999999",
                      Qualification("Высшая категория"), [Specialty("Терапевт")])
     doctor2 = Doctor("Иванов", "Петр", "09.08.2000", "9999999999",
                      Qualification("Высшая категория"), [Specialty("Терапевт")])
-    print(doctor1 == doctor2)  # Должно быть True
+    print(doctor1 == doctor2)
 
     doctor1 = Doctor("Иванов", "Петр", "09.08.2000", "9999999999",
                      Qualification("Высшая категория"), [Specialty("Терапевт")])
     doctor2 = Doctor("Петров", "Петр", "09.08.2000", "9999999999",
                      Qualification("Высшая категория"), [Specialty("Терапевт")])
-    print(doctor1 == doctor2)  # Должно быть False
+    print(doctor1 == doctor2)
 
 
 if __name__ == '__main__':

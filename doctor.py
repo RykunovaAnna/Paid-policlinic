@@ -99,7 +99,7 @@ class Doctor:
             raise ValueError(f'Значение {name_type} не может быть пустым')
         if re.match(r"[^а-яё'`\-\s]+", name, flags=re.IGNORECASE):
             raise ValueError(f'Значение {name_type} содержит недопустимые символы')
-        if not re.match(r"^[а-яё]*(?:['`\-\s][а-яё]+)*$", name, flags=re.IGNORECASE):
+        if not re.match(r"^[а-яё]+(?:['`\-\s][а-яё]+)*$", name, flags=re.IGNORECASE):
             raise ValueError(f'Значение {name_type} не соответствует стандартному формату')
 
         separators = re.findall(r"['`\-\s]", name)
