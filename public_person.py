@@ -86,7 +86,7 @@ class PublicPerson:
             raise ValueError('Локальная часть email не соответствует стандартному виду')
         if re.match(r'[^a-z\d\-.]', email_parts[1], flags=re.IGNORECASE):
             raise ValueError('Доменное имя email содержит недопустимые символы')
-        if not re.match(r'^[a-z\d]+(?:\-[a-z\d]+)*(?:\.[a-z\d]+(?:\-[a-z\d]+)*)\.[a-z]{2,}$',
+        if not re.match(r'^[a-z\d]+(?:\-[a-z\d]+)*(?:\.[a-z\d]+(?:\-[a-z\d]+)*)*\.[a-z]{2,}$',
                         email_parts[1], flags=re.IGNORECASE):
             raise ValueError('Доменное имя email не соответствует стандартному виду')
 
@@ -94,15 +94,19 @@ class PublicPerson:
 
     @staticmethod
     def validate_public_phone(public_phone: str) -> str:
-        if not isinstance(public_phone, str):
-            raise TypeError('Публичный телефон должен быть строкой')
+        return PublicPerson.validate_phone(public_phone, 'публичный')
 
-        public_phone = re.sub(r'[+()\s\-]', '', public_phone)
-        if not public_phone:
-            raise ValueError('Публичный телефон не может быть пустым')
-        if re.match(r'\D', public_phone):
-            raise ValueError('Публичный телефон содержит недопустимые символы')
-        if not re.match(r'^(?:7\d{10}|8\d{10}|\d{10})$', public_phone):
-            raise ValueError('Публичный телефон не соответствует стандартному виду')
+    @staticmethod
+    def validate_phone(phone: str, phone_type: str) -> str:
+        if not isinstance(phone, str):
+            raise TypeError(f'{phone_type.capitalize()} телефон должен быть строкой')
 
-        return public_phone if len(public_phone) == 10 else public_phone[1:]
+        phone = re.sub(r'[+()\s\-]', '', phone)
+        if not phone:
+            raise ValueError(f'{phone_type.capitalize()} телефон не может быть пустым')
+        if re.match(r'\D', phone):
+            raise ValueError(f'{phone_type.capitalize()} телефон содержит недопустимые символы')
+        if not re.match(r'^(?:7\d{10}|8\d{10}|\d{10})$', phone):
+            raise ValueError(f'{phone_type.capitalize()} телефон не соответствует стандартному виду')
+
+        return phone if len(phone) == 10 else phone[1:]

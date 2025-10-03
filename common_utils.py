@@ -10,7 +10,7 @@ def generate_id() -> int:
 def remove_duplicated_chars(string: str, chars: str) -> str:
     for char in chars:
         if char in string:
-            string = re.sub(re.compile(f'{char}+'), char, string)
+            string = re.sub(re.compile(f'\\\\{char}+'), char, string)
     return string
 
 
