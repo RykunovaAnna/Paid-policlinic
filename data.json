@@ -1,0 +1,12 @@
+{
+  "surname": "Иванов",
+  "firstname": "Петр",
+  "patronymic": "Сергеевич",
+  "initials": "Иванов П.П.",
+  "date_birth": "09.08.2004",
+  "public_phone": "+7 (918) 328-87-27",
+  "private_phone": "+7 (918) 328-87-72",
+  "email": "qwe@qwe.ru",
+  "qualification": "Высшая категория",
+  "specialties": ["Терапевт", "Кардиолог"]
+}

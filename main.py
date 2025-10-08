@@ -70,6 +70,9 @@ def tests():
                   "Высшая категория;Эндокринолог,Диетолог"
     doctor = Doctor(string_data)
 
+    doctor = Doctor(json='data.json')
+    print(doctor)
+
 
     # 2 - тест валидации
     doctor = Doctor("Д'Арк", "Жанна", "Д'Арк Ж.", "09.08.2000", "9288328514", "89288328516", "darkjanna@gmail.com",

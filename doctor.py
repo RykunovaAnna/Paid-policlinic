@@ -1,3 +1,4 @@
+import _io
 import datetime
 import json
 import re
@@ -144,7 +145,7 @@ class Doctor(PublicPerson):
             data = Doctor.parse_init_dict(args[0])
         elif len(args) == 1 and isinstance(args[0], str):
             if args[0].startswith('{') and args[0].endswith('}'):
-                data = Doctor.parse_init_json(args[0])
+                data = Doctor.parse_init_json_string(args[0])
             else:
                 data = Doctor.parse_init_string(args[0])
         elif len(args) == 9:
@@ -159,7 +160,9 @@ class Doctor(PublicPerson):
         elif kwargs.get('dictionary') and isinstance(kwargs.get('dictionary'), dict):
             data = Doctor.parse_init_dict(kwargs.get('dictionary'))
         elif kwargs.get('json') and isinstance(kwargs.get('json'), dict):
-            data = Doctor.parse_init_json(kwargs.get('json'))
+            data = Doctor.parse_init_json_string(kwargs.get('json'))
+        elif kwargs.get('json') and isinstance(kwargs.get('json'), str | _io.TextIOWrapper):
+            data = Doctor.parse_init_json_file(kwargs.get('json'))
         elif kwargs.get('string') and isinstance(kwargs.get('string'), str):
             data = Doctor.parse_init_string(kwargs.get('string'))
         else:
@@ -203,8 +206,15 @@ class Doctor(PublicPerson):
             return Doctor.build_init_data(*data)
 
     @staticmethod
-    def parse_init_json(init_json: str) -> dict:
+    def parse_init_json_string(init_json: str) -> dict:
         return json.loads(init_json)
+
+    @staticmethod
+    def parse_init_json_file(init_json: str | _io.TextIOWrapper) -> dict:
+        with open(init_json, mode='r', encoding='utf-8') if isinstance(init_json, str) else init_json as file:
+            json_string = ''.join(file.readlines())
+
+        return Doctor.parse_init_json_string(json_string.replace('\n', ''))
 
     @staticmethod
     def build_init_data(surname: str, firstname: str, patronymic: str | None, initials: str,
