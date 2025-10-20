@@ -6,10 +6,14 @@ from common_utils import generate_id, remove_duplicated_chars
 class PublicPerson:
     __public_person_id: int = generate_id()
 
-    def __init__(self, initials: str, email: str, public_phone: str) -> None:
-        self.__initials: str = PublicPerson.validate_initials(initials)
-        self.__email: str = PublicPerson.validate_email(email)
-        self.__public_phone: str = PublicPerson.validate_public_phone(public_phone)
+    def __init__(self, surname: str, firstname: str, patronymic: str | None, email: str, public_phone: str) -> None:
+            initials = f"{surname} {firstname[0]}."
+            if patronymic: 
+                initials += f"{patronymic[0]}."
+            
+            self.__initials: str = PublicPerson.validate_initials(initials)
+            self.__email: str = PublicPerson.validate_email(email)
+            self.__public_phone: str = PublicPerson.validate_public_phone(public_phone)
 
     @property
     def public_person_id(self) -> int:

@@ -1,7 +1,6 @@
 import _io
 import datetime
 import json
-import re
 from typing import Any
 
 from common_utils import (
@@ -9,7 +8,6 @@ from common_utils import (
     format_date,
     format_telephone,
     generate_id,
-    remove_duplicated_chars,
     validate_str_date,
 )
 from public_person import PublicPerson
@@ -21,17 +19,25 @@ class Doctor(PublicPerson):
     __doctor_id: int = generate_id()
 
     def __init__(self, *args, **kwargs) -> None:
-        parsed_data: dict = Doctor.parse_init_data(*args, **kwargs)
+        parsed_data = Doctor.parse_init_data(*args, **kwargs)
 
-        super().__init__(parsed_data.get('initials'), parsed_data.get('email'), parsed_data.get('public_phone'))
+        surname = Doctor.validate_name(parsed_data.get('surname'), 'surname')
+        firstname = Doctor.validate_name(parsed_data.get('firstname'), 'firstname')
+        patronymic = Doctor.validate_patronymic(parsed_data.get('patronymic'))
+        email = PublicPerson.validate_email(parsed_data.get('email'))
+        public_phone = PublicPerson.validate_public_phone(parsed_data.get('public_phone'))
 
-        self.__surname: str = Doctor.validate_name(parsed_data.get('surname'), 'surname')
-        self.__firstname: str = Doctor.validate_name(parsed_data.get('firstname'), 'firstname')
-        self.__patronymic: str | None = Doctor.validate_patronymic(parsed_data.get('patronymic'))
-        self.__date_birth: datetime.date = Doctor.validate_date_birth(parsed_data.get('date_birth'))
-        self.__private_phone: str = Doctor.validate_private_phone(parsed_data.get('private_phone'))
-        self.__qualification: Qualification = Doctor.validate_qualification(parsed_data.get('qualification'))
-        self.__specialties: list[Specialty] = Doctor.validate_specialties(parsed_data.get('specialties'))
+        # Вызываем конструктор родителя с корректными аргументами
+        super().__init__(surname, firstname, patronymic, email, public_phone)
+
+        # Остальные поля
+        self.__surname = surname
+        self.__firstname = firstname
+        self.__patronymic = patronymic
+        self.__date_birth = Doctor.validate_date_birth(parsed_data.get('date_birth'))
+        self.__private_phone = Doctor.validate_private_phone(parsed_data.get('private_phone'))
+        self.__qualification = Doctor.validate_qualification(parsed_data.get('qualification'))
+        self.__specialties = Doctor.validate_specialties(parsed_data.get('specialties'))
 
     @property
     def doctor_id(self) -> int:
@@ -97,147 +103,110 @@ class Doctor(PublicPerson):
     def validate_patronymic(patronymic: str | None) -> str | None:
         if patronymic is None:
             return None
-
         return Doctor.validate_name(patronymic, 'patronymic')
 
     @staticmethod
     def validate_date_birth(date_birth: datetime.date | str) -> datetime.date:
-        if not isinstance(date_birth, datetime.date | str):
+        if not isinstance(date_birth, (datetime.date, str)):
             raise TypeError('Дата рождения должна быть типа datetime.date или строкой')
-
         if isinstance(date_birth, str):
-            date_birth_parts = list(map(int, validate_str_date(date_birth).split('.')))
-            date_birth = datetime.date(date_birth_parts[2], date_birth_parts[1], date_birth_parts[0])
-
+            parts = list(map(int, validate_str_date(date_birth).split('.')))
+            date_birth = datetime.date(parts[2], parts[1], parts[0])
         age = convert_timedelta_to_years(datetime.date.today() - date_birth)
         if age < 18 or age > 100:
             raise ValueError('Человек должен быть старше 18 и младше 100 лет')
-
         return date_birth
 
     @staticmethod
-    def validate_private_phone(private_phone: str) -> str:
-        return Doctor.validate_phone(private_phone, 'личный')
+    def validate_private_phone(phone: str) -> str:
+        return Doctor.validate_phone(phone, 'личный')
 
     @staticmethod
     def validate_specialties(specialties: list[Specialty | str]) -> list[Specialty]:
         if not isinstance(specialties, list):
-            raise TypeError('Параметр specialties должен быть списком')
+            raise TypeError('specialties должен быть списком')
         if not specialties:
             raise ValueError('Список specialties не может быть пустым')
-        if any(not isinstance(specialty, Specialty | str) for specialty in specialties):
-            raise TypeError('Параметр specialties должен содержать список значений типа Specialty или строк')
-
-        return [Specialty(specialty) if isinstance(specialty, str) else specialty for specialty in specialties]
+        return [Specialty(s) if isinstance(s, str) else s for s in specialties]
 
     @staticmethod
     def validate_qualification(qualification: Qualification | str) -> Qualification:
-        if not isinstance(qualification, Qualification | str):
-            raise TypeError('Параметр qualification должен быть типа Qualification или строкой')
+        if isinstance(qualification, str):
+            return Qualification(qualification)
+        if isinstance(qualification, Qualification):
+            return qualification
+        raise TypeError('qualification должен быть Qualification или str')
 
-        return Qualification(qualification) if isinstance(qualification, str) else qualification
-
+    # --- Методы parse_init_data и build_init_data ---
     @staticmethod
     def parse_init_data(*args, **kwargs) -> dict:
         if len(args) == 1 and isinstance(args[0], Doctor):
-            data = Doctor.parse_init_doctor(args[0])
+            return Doctor.parse_init_doctor(args[0])
         elif len(args) == 1 and isinstance(args[0], dict):
-            data = Doctor.parse_init_dict(args[0])
+            return args[0]
         elif len(args) == 1 and isinstance(args[0], str):
             if args[0].startswith('{') and args[0].endswith('}'):
-                data = Doctor.parse_init_json_string(args[0])
-            else:
-                data = Doctor.parse_init_string(args[0])
-        elif len(args) == 9:
-            data = Doctor.build_init_data(args[0], args[1], None, args[2], args[3],
-                                          args[4], args[5], args[6], args[7], args[8])
-        elif len(args) == 10:
-            data = Doctor.build_init_data(*args)
-        elif 1 < len(args) < 9 or len(args) > 10:
-            raise AttributeError('Не соответствует количество аттрибутов')
+                return json.loads(args[0])
+            return Doctor.parse_init_string(args[0])
+        elif len(args) in (8, 9, 10):
+            return Doctor.build_init_data(*args)
         elif kwargs.get('doctor') and isinstance(kwargs.get('doctor'), Doctor):
-            data = Doctor.parse_init_doctor(kwargs.get('doctor'))
+            return Doctor.parse_init_doctor(kwargs.get('doctor'))
         elif kwargs.get('dictionary') and isinstance(kwargs.get('dictionary'), dict):
-            data = Doctor.parse_init_dict(kwargs.get('dictionary'))
-        elif kwargs.get('json') and isinstance(kwargs.get('json'), dict):
-            data = Doctor.parse_init_json_string(kwargs.get('json'))
-        elif kwargs.get('json') and isinstance(kwargs.get('json'), str | _io.TextIOWrapper):
-            data = Doctor.parse_init_json_file(kwargs.get('json'))
+            return kwargs.get('dictionary')
+        elif kwargs.get('json'):
+            if isinstance(kwargs.get('json'), str):
+                with open(kwargs.get('json'), 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            elif isinstance(kwargs.get('json'), _io.TextIOWrapper):
+                return json.load(kwargs.get('json'))
         elif kwargs.get('string') and isinstance(kwargs.get('string'), str):
-            data = Doctor.parse_init_string(kwargs.get('string'))
+            return Doctor.parse_init_string(kwargs.get('string'))
         else:
-            data = Doctor.parse_init_dict(kwargs)
-
-        return data
+            return kwargs
 
     @staticmethod
     def parse_init_doctor(doctor: "Doctor") -> dict:
-        return Doctor.build_init_data(
-            doctor.surname, doctor.firstname, doctor.patronymic, doctor.initials, doctor.date_birth,
-            doctor.public_phone, doctor.private_phone, doctor.email,
-            Qualification(doctor.qualification.title), [Specialty(specialty.title) for specialty in doctor.specialties]
-        )
-
-    @staticmethod
-    def parse_init_dict(init_dict: dict) -> dict:
-        if set(init_dict.keys()) - {'surname', 'firstname', 'patronymic', 'initials', 'date_birth', 'public_phone',
-                                    'private_phone', 'email', 'qualification', 'specialties'}:
-            raise KeyError('Переданные ключи не соответствуют')
-
-        return init_dict
+        return {
+            'surname': doctor.surname,
+            'firstname': doctor.firstname,
+            'patronymic': doctor.patronymic,
+            'initials': doctor.initials,
+            'date_birth': doctor.date_birth,
+            'public_phone': doctor.public_phone,
+            'private_phone': doctor.private_phone,
+            'email': doctor.email,
+            'qualification': doctor.qualification,
+            'specialties': doctor.specialties,
+        }
 
     @staticmethod
     def parse_init_string(init_string: str) -> dict:
         split_data = init_string.split(';')
-
-        if 1 < len(split_data) < 9 or len(split_data) > 10:
-            raise AttributeError('Не соответствует количество аттрибутов')
-
-        data: list = [parameter.strip() for parameter in split_data[:-1]]
-        if ',' in split_data[-1]:
-            data.append(split_data[-1].strip().split(','))
-        else:
-            data.append([split_data[-1].strip()])
-
-        if len(data) == 9:
-            return Doctor.build_init_data(data[0], data[1], None, data[2], data[3],
-                                          data[4], data[5], data[6], data[7], data[8])
-        elif len(data) == 10:
-            return Doctor.build_init_data(*data)
-
-    @staticmethod
-    def parse_init_json_string(init_json: str) -> dict:
-        return json.loads(init_json)
-
-    @staticmethod
-    def parse_init_json_file(init_json: str | _io.TextIOWrapper) -> dict:
-        with open(init_json, mode='r', encoding='utf-8') if isinstance(init_json, str) else init_json as file:
-            json_string = ''.join(file.readlines())
-
-        return Doctor.parse_init_json_string(json_string.replace('\n', ''))
-
-    @staticmethod
-    def build_init_data(surname: str, firstname: str, patronymic: str | None, initials: str,
-                        date_birth: datetime.date | str, public_phone: str, private_phone: str, email: str,
-                        qualification: Qualification | str, specialties: list[Specialty | str]) -> dict:
+        # Простейшая проверка на корректность
+        if len(split_data) < 7:
+            raise AttributeError('Не соответствует количество атрибутов')
         return {
-            'surname': surname,
-            'firstname': firstname,
-            'patronymic': patronymic,
-            'initials': initials,
-            'date_birth': date_birth,
-            'public_phone': public_phone,
-            'private_phone': private_phone,
-            'email': email,
-            'qualification': qualification,
-            'specialties': specialties,
+            'surname': split_data[0].strip(),
+            'firstname': split_data[1].strip(),
+            'patronymic': split_data[2].strip() if len(split_data) > 8 else None,
+            'date_birth': split_data[3].strip(),
+            'public_phone': split_data[4].strip(),
+            'private_phone': split_data[5].strip(),
+            'email': split_data[6].strip(),
+            'qualification': split_data[7].strip() if len(split_data) > 7 else None,
+            'specialties': split_data[8].strip().split(',') if len(split_data) > 8 else [],
         }
 
-    def __str__(self) -> str:
-        patronymic_name = f'Отчество: {self.patronymic}\n' if self.patronymic else '\n'
+    @staticmethod
+    def build_init_data(*args) -> dict:
+        keys = ['surname', 'firstname', 'patronymic', 'date_birth', 'public_phone', 'private_phone', 'email', 'qualification', 'specialties']
+        return dict(zip(keys, args))
 
+    def __str__(self) -> str:
+        patronymic_name = f'Отчество: {self.patronymic}\n' if self.patronymic else ''
         return (f'Фамилия: {self.surname}\n'
-                f'Имя: {self.firstname}'
+                f'Имя: {self.firstname}\n'
                 f'{patronymic_name}'
                 f'Инициалы: {self.initials}\n'
                 f'Дата рождения: {format_date(self.date_birth)}\n'
@@ -250,13 +219,21 @@ class Doctor(PublicPerson):
     @property
     def short_str(self) -> str:
         patronymic_name = f' {self.patronymic}' if self.patronymic else ''
-
         return f'{self.surname} {self.firstname}{patronymic_name}'
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, Doctor) and self.surname == other.surname and self.firstname == other.firstname and \
-               self.patronymic == other.patronymic and self.date_birth == other.date_birth and \
-               self.private_phone == other.private_phone and self.qualification == other.qualification and \
-               self.initials == other.initials and self.public_phone == other.public_phone and \
-               self.email == other.email and all(specialty in other.specialties for specialty in self.specialties) and \
-               all(specialty in self.specialties for specialty in other.specialties)
+        if not isinstance(other, Doctor):
+            return False
+        return (
+            self.surname == other.surname and
+            self.firstname == other.firstname and
+            self.patronymic == other.patronymic and
+            self.date_birth == other.date_birth and
+            self.private_phone == other.private_phone and
+            self.qualification == other.qualification and
+            self.initials == other.initials and
+            self.public_phone == other.public_phone and
+            self.email == other.email and
+            all(s in other.specialties for s in self.specialties) and
+            all(s in self.specialties for s in other.specialties)
+        )
